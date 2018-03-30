@@ -15,6 +15,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import org.jfree.ui.RefineryUtilities;
+
 public class Main {
 	
 	
@@ -28,19 +30,56 @@ public class Main {
  	static final int NORTH = 1;
  	static final int LEFT = 2;
  	static final int RIGHT = 3;
+ 	static final int SOUTH = 4;
+ 	static double absoluteDiff;
+ 	static double tempAbsoluteDiff;
+ 	
+ 	
+ 	static int counter = 0;
+ 	
+ 	
  	static double calculatedUtility = 0;
 	static ArrayList<Integer> visitedCells = new ArrayList<Integer>();
-	static ArrayList<Integer> cellUtility = new ArrayList<Integer>();
+	static ArrayList<Double> cellUtility = new ArrayList<Double>();
+	static ArrayList<Double> oldCellUtility = new ArrayList<Double>();
+
+	
+	
+	
 	static int nextCell = 0;
 	static int iterationsLeft = 20;
+	static double discount = 0.99;
+	
+	static int directionTaken = 0;
+	
+	static double episilon = 80;
+	
+	
+	
+	static double convergence = episilon*(1.0 - discount)/discount;
+
+
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+		 
+		ValueIteration vi = new ValueIteration();
+		vi.setup();
+		vi.startValueIteration();
 		
-		int row = 0;
-		int col = 0;
+		PolicyEvaluation pe = new PolicyEvaluation();
+		pe.setup();
+		pe.startPolicyEvalution();
 		
+		
+		 
+		
+		
+		
+		
+		
+		/*
 		
 		//setup frame
 		frame = new JFrame();
@@ -76,98 +115,11 @@ public class Main {
 		//setup grid
 		
 		map = new JPanel();
-		map.setLayout(new GridLayout(3,4));
-		//map.setLayout(new GridLayout(6,6));
-
-		
-	/*	for (int i = 0 ;i < 36 ; i++) {
-			
-			grid.add(new Cell(Cell.white));
-			
-		}
-		
-		grid.get(0).setType(Cell.green);
-		grid.get(2).setType(Cell.green);
-		grid.get(5).setType(Cell.green);
-		grid.get(9).setType(Cell.green);
-		grid.get(16).setType(Cell.green);
-		grid.get(23).setType(Cell.green);
-		
-		grid.get(1).setType(Cell.wall);
-		grid.get(10).setType(Cell.wall);
-		grid.get(25).setType(Cell.wall);
-		grid.get(26).setType(Cell.wall);
-		grid.get(27).setType(Cell.wall);
-
-		
-		grid.get(7).setType(Cell.brown);
-		grid.get(11).setType(Cell.brown);
-		grid.get(14).setType(Cell.brown);
-		grid.get(21).setType(Cell.brown);
-		grid.get(28).setType(Cell.brown);*/
-		
-		for (int i = 0 ;i < 12 ; i++) {
-			
-			final int k = i;
-			grid.add(new Cell(Cell.white));			
-			grid.get(i).setText(String.valueOf(i));
-			grid.get(i).addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-					calculatedUtility =0;
-					visitedCells = new ArrayList<Integer>();
-					iterationsLeft = 20;
-					findUtility(k);
-					
-					System.out.println("end");
-					
-				}
-			});
-			
-			
-		}
-		grid.get(3).setType(Cell.green);
-		grid.get(5).setType(Cell.wall);
-		grid.get(7).setType(Cell.brown);
-		
-		
-
-		for (int i = 0 ;i < 12 ; i++) {
-
-			map.add(grid.get(i));
-
-			
- 			
-		}
-		
+		map.setLayout(new GridLayout(6,6));
 
 		
 		
-		for (int i = 0 ;i < 12 ; i++) {
- 			visitedCells = new ArrayList<Integer>();
-			calculatedUtility =0;
-			iterationsLeft = 20;
- 			findUtility(i);
- 			
- 			
- 			if(grid.get(i).getType()!=Cell.wall)
-			grid.get(i).setText(String.valueOf(calculatedUtility));else {
-				grid.get(i).setText(" ");
-			}
- 
-		}
-
-		
-		System.out.println("end");
-
-		
- 
-		
-		
-		
-		/*for (int i = 0 ;i < 36 ; i++) {
+		for (int i = 0 ;i < 36 ; i++) {
 			
 			grid.add(new Cell(Cell.white));	
 			
@@ -194,8 +146,127 @@ public class Main {
 		grid.get(28).setType(Cell.brown);
 		
 		
+		for (int i = 0 ;i < 36 ; i++) {
+			
+			map.add(grid.get(i));
+			
+		}
 		
-		grid.get(coordinateToLocation(0, 0)).setText(String.valueOf(18.538042));
+
+		do {
+			
+			
+			absoluteDiff = 0;
+		
+			
+			
+			
+			oldCellUtility = cellUtility;
+			cellUtility = new ArrayList<>();
+			
+		for (int i = 0 ;i < 36 ; i++) {
+			
+			
+			double newUtility;
+			double oldUtility = 0;
+			
+ 			visitedCells = new ArrayList<Integer>();
+			calculatedUtility =0;
+			iterationsLeft = 20;
+
+			
+			
+			newUtility = findUtility(i);
+			
+			if(!oldCellUtility.isEmpty())
+			oldUtility = oldCellUtility.get(i);
+			
+			
+			tempAbsoluteDiff = Math.abs(newUtility - oldUtility);
+			
+			
+			if(tempAbsoluteDiff >= absoluteDiff) {
+				
+				
+				absoluteDiff = tempAbsoluteDiff;
+				
+			}
+			
+			
+			
+			System.out.println("absolute" + absoluteDiff);
+
+			
+			
+			
+			cellUtility.add(newUtility);
+			
+			
+ 			
+ 			
+ 			if(grid.get(i).getType()!=Cell.wall) {
+				
+ 			
+ 			switch (directionTaken) {
+ 			
+ 			
+ 			case (NORTH):
+ 				grid.get(i).setText(String.valueOf(cellUtility.get(i)) + " \n " + " ^ ");
+ 				break;
+ 			
+ 			case (LEFT):
+ 				grid.get(i).setText(String.valueOf(cellUtility.get(i)) + " \n " + " < ");
+				break;
+ 			case (RIGHT):
+ 				grid.get(i).setText(String.valueOf(cellUtility.get(i)) + " \n " + " > ");
+				break;
+ 			
+ 			case (SOUTH):
+ 				grid.get(i).setText(String.valueOf(cellUtility.get(i)) + " \n " + " dwn ");
+				break;
+ 			
+ 			
+ 			
+ 			}
+		}
+ 			
+ 			
+ 
+		}
+		
+	
+		
+		for (int i = 0 ;i < 36 ; i++) {
+				
+			grid.get(i).setUtility(cellUtility.get(i));
+ 
+		}
+		
+		
+		
+		System.out.println("absolute" + absoluteDiff);
+		System.out.println("abssssssssssssssssolute" + convergence);
+		counter++;
+		
+		
+		
+
+		}
+		
+		while(absoluteDiff >= convergence);
+		
+		
+		System.out.println("end" + counter);
+
+		frame.setSize(1520, 768);*/
+
+ 
+		
+		
+ 
+		
+		
+	/*	grid.get(coordinateToLocation(0, 0)).setText(String.valueOf(18.538042));
 		grid.get(coordinateToLocation(0, 1)).setText(String.valueOf(16.973925));
 		grid.get(coordinateToLocation(0, 2)).setText(String.valueOf(15.645911));
 		grid.get(coordinateToLocation(0, 3)).setText(String.valueOf(14.432489));
@@ -215,24 +286,18 @@ public class Main {
 		grid.get(coordinateToLocation(3, 2)).setText(String.valueOf(14.659492));
 		grid.get(coordinateToLocation(3, 3)).setText(String.valueOf(12.626667));
 		grid.get(coordinateToLocation(3, 5)).setText(String.valueOf(11.000803));
-		grid.get(coordinateToLocation(4, 0)).setText(String.valueOf(15.37473));
+		grid.get(coordinateToLocation(4, 0)).setText(String.valueOf(15.37473));*/
 
 		
 
 
 
-		for (int i = 0 ;i < 36 ; i++) {
-			
-			map.add(grid.get(i));
-			
-		}
-		*/
-		 
+ 
 		
+		/*
 		
 		frame.add(menuBar,BorderLayout.PAGE_START);
-		frame.add(map, BorderLayout.CENTER);
-		
+		frame.add(map, BorderLayout.CENTER);*/
 		
 		
          
@@ -256,10 +321,15 @@ public class Main {
 		
 		
 	}
+ 
 	
 	
 	
-	public static void findUtility(int i) {
+	
+	
+	
+	
+	public static double findUtility(int i) {
 		
 		Cell startCell = grid.get(i);
 	 //   System.out.println(String.valueOf(startCell.getType()));
@@ -278,12 +348,13 @@ public class Main {
 		
 		int direction = -1;
 		
-		double currentUtility = startCell.getReward();
-		if(currentUtility == -100) {
-			currentUtility = 0;
-		}
+		double currentUtility = startCell.getUtility();
+		double currentReward = startCell.getReward();
+
 		
-		System.out.println(String.valueOf(startCell.getReward()));
+		
+		
+		//System.out.println(String.valueOf(startCell.getReward()));
 
 
 		
@@ -293,71 +364,122 @@ public class Main {
 		
 		
 		//look north
-		if(i -4 >= 0) {
+		if(i -6 >= 0) {
 			
-			neighbourCell = grid.get(i-4);
-			northUtility = neighbourCell.getReward();
-		//	System.out.println("North utility is " + northUtility);
+			neighbourCell = grid.get(i-6);
+			
+			if(neighbourCell.getType() != Cell.wall) {
+				
+			northUtility = neighbourCell.getUtility();
+			System.out.println("North utility is " + northUtility);
+		
+			}
 			
 			
 		}
 		
 		//look left
-		if(i - 1 >= 0 && i%4 !=0) {
+		if(i - 1 >= 0 && i%6 !=0) {
 			
 			
 			neighbourCell = grid.get(i-1);
-			leftUtility = neighbourCell.getReward();
-		//	System.out.println("Left utility is " + leftUtility);
-
+			
+			if(neighbourCell.getType() != Cell.wall) {
+				
+				
+			leftUtility = neighbourCell.getUtility();
+			System.out.println("Left utility is " + leftUtility);
+		
+		
+		
+			}
 			
 		}
 		
 		
 		//look right
-		if(i + 1 <= 11 && (i+1)%4 !=0) {
+		if(i + 1 <= 35 && (i+1)%6 !=0) {
 			
 			
 			neighbourCell = grid.get(i+1);
-			rightUtility = neighbourCell.getReward();
-		//	System.out.println("Right utility is " + rightUtility);
-
+			
+			if(neighbourCell.getType() != Cell.wall) {
+				
+				
+			rightUtility = neighbourCell.getUtility();
+			System.out.println("Right utility is " + rightUtility);
+			
+			
+			}
 		}
+		
+		//look south
+		if(i +6 <= 35) {
+			
+			neighbourCell = grid.get(i+6);
+			
+			if(neighbourCell.getType() != Cell.wall) {
+				
+				
+			southUtility = neighbourCell.getUtility();
+		    System.out.println("South utility is " + southUtility);
+		    
+		    
+		    
+			}
+			
+		}
+		
+		if(northUtility == -100) {
+			northUtility = currentUtility;
+		}
+		if(leftUtility == -100) {
+			leftUtility = currentUtility;
+			
+		}
+		if(rightUtility == -100) {
+			rightUtility = currentUtility;
+		}
+		if(southUtility == -100) {
+			southUtility = currentUtility;
+		}
+		
+		
+		
+		
 		
 		
 		
 		//get max utility from state
 	    //double max =  Math.max(Math.max(northUtility,leftUtility),rightUtility);
 		
-	    if(northUtility >= leftUtility && northUtility >= rightUtility ) {
+	    if(northUtility >= leftUtility && northUtility >= rightUtility && northUtility >= southUtility ) {
 	    	
 	    	highestUtility = northUtility;
 	    	lowerUtility1 = leftUtility;
 	    	lowerUtility2 = rightUtility;
-			nextCell = i - 4;
+			nextCell = i - 6;
 			direction = NORTH;
-				
-	    	
-	    	
+
 	    	
 	    }
 	    
-	    else if(leftUtility >= northUtility && leftUtility >= rightUtility ) {
+	    else if(leftUtility >= northUtility && leftUtility >= rightUtility && leftUtility >= southUtility ) {
 	    	
 	    	highestUtility = leftUtility;
 	    	lowerUtility1 = northUtility;
-	    	lowerUtility2 = rightUtility;
+	    	lowerUtility2 = southUtility;
 			nextCell = i - 1;
 			direction = LEFT;
 
 	    	
 	    }
 	    
-	    else if(rightUtility >= northUtility && rightUtility >= leftUtility ) {
+	    else if(rightUtility >= northUtility && rightUtility >= leftUtility && rightUtility >= southUtility  ) {
 	    	
 	    	highestUtility = rightUtility;
 	    	lowerUtility1 = northUtility;
-	    	lowerUtility2 = leftUtility;
+	    	lowerUtility2 = southUtility;
 			nextCell = i+1;
 			direction = RIGHT;
 
@@ -365,71 +487,79 @@ public class Main {
 	    	
 	    }
 	    
-	    
-	    if(direction == NORTH) {
+	    else if(southUtility >= northUtility && southUtility >= leftUtility && southUtility >= rightUtility  ) {
 	    	
-	    	
-	    	if (visitedCells.contains(i-4) == true) {
-	    		if(leftUtility > rightUtility) {
-	    			nextCell = i-1;
-	    		}else {
-	    			nextCell = i+1;
-	    		}
-	    		
-	    		
-	    	}
-	    	
-	    }
-	    else if (direction == LEFT) {
-	    	
-	    	
-	    	if (visitedCells.contains(i-1) == true) {
-	    		if(northUtility > rightUtility) {
-	    			nextCell = i-4;
-	    		}else {
-	    			nextCell = i+1;
-	    		}
-	    		
-	    		
-	    	}
-	    	
-	    }
-	    
-	    else if (direction == RIGHT) {
-	    	
-	    	
-	    	if (visitedCells.contains(i+1) == true) {
-	    		if(northUtility > leftUtility) {
-	    			nextCell = i-4;
-	    		}else {
-	    			nextCell = i-1;
-	    		}
-	    		
-	    		
-	    	}
-	    	
-	    }
-	    
-	    
-	    if(nextCell < 0) {
-	    	nextCell ++;
-	    	nextCell ++;
+	    	highestUtility = southUtility;
+	    	lowerUtility1 = rightUtility;
+	    	lowerUtility2 = leftUtility;
+			nextCell = i+6;
+			direction = SOUTH;
 
+	    	
+	    	
 	    }
-	    if(nextCell > 11) {
-	    	nextCell--;
-	    	nextCell--;
 
-	    }
+	    
+	    System.out.println("nextCell is " + nextCell);
 	    
 	    
 	    
 	    
-	    
-	    
-	  //  System.out.println(String.valueOf(highestUtility));
-	  //  System.out.println(String.valueOf(lowerUtility1));
-	  //  System.out.println(String.valueOf(lowerUtility2));
+	   double calculatedUtilityUp = currentReward + discount * (0.8 * northUtility + 0.1 * leftUtility + 0.1 * rightUtility) ;
+	   double calculatedUtilityleft = currentReward + discount * (0.8 * leftUtility + 0.1 * northUtility + 0.1 * southUtility) ;
+	   double calculatedUtilityright = currentReward + discount * (0.8 * rightUtility + 0.1 * northUtility + 0.1 * southUtility) ;
+	   double calculatedUtilitydown = currentReward + discount * (0.8 * southUtility + 0.1 * leftUtility + 0.1 * rightUtility) ;
+
+	   System.out.println(calculatedUtilityUp); 
+	   System.out.println(calculatedUtilityleft); 
+	   System.out.println(calculatedUtilityright); 
+	   System.out.println(calculatedUtilitydown); 
+
+	   
+	   
+	   if(calculatedUtilityUp >= calculatedUtilityleft && calculatedUtilityUp >= calculatedUtilityright && calculatedUtilityUp >- calculatedUtilitydown) {
+		   
+		   
+		   System.out.println("return up");
+		   directionTaken = NORTH;
+		   return calculatedUtilityUp;
+		   
+	   }
+	   else if(calculatedUtilityleft >= calculatedUtilityUp && calculatedUtilityleft >= calculatedUtilityright && calculatedUtilityUp >- calculatedUtilitydown) {
+		   
+		   System.out.println("return left");
+
+		   
+		   directionTaken = LEFT;
+
+		   return calculatedUtilityleft;
+		   
+	   }
+	   else if(calculatedUtilityright >= calculatedUtilityleft && calculatedUtilityright >= calculatedUtilityUp && calculatedUtilityright >- calculatedUtilitydown) {
+		   System.out.println("return right");
+
+		   
+		   directionTaken = RIGHT;
+
+		   return calculatedUtilityright;
+		   
+	   }
+	   else if(calculatedUtilitydown >= calculatedUtilityleft && calculatedUtilitydown >= calculatedUtilityright && calculatedUtilitydown >- calculatedUtilityUp) {
+		   
+		   System.out.println("return dw");
+
+		   
+		   directionTaken = SOUTH;
+
+		   return calculatedUtilitydown;		    
+
+		   
+	   }
+	   
+	   
+	   
+	   
+	   
 	    
 	    
 	    if(highestUtility == -100) {
@@ -442,36 +572,22 @@ public class Main {
 	    	lowerUtility2 = 0;
 	    }
 	    
-		calculatedUtility = currentUtility + 0.8 * highestUtility + 0.1 * lowerUtility1 + 0.1 * lowerUtility1 + calculatedUtility;
-	//	System.out.println("adding to utility");
-		   
+	    
+	    
+		    System.out.println(String.valueOf("highest is " + highestUtility));
+		    System.out.println(String.valueOf("lowest 1 is " +lowerUtility1));
+		    System.out.println(String.valueOf("lowest 2 is " + lowerUtility2));
+		    calculatedUtility = currentReward + discount * (0.8 * highestUtility + 0.1 * lowerUtility1 + 0.1 * lowerUtility1) ;
 		    
+		    //grid.get(i).setUtility(calculatedUtility);
 		    
-	    
-	    visitedCells.add(nextCell);
-	    
-	    
-	     
-	    //System.out.println(String.valueOf(startCell.getType()));
-	    
-	    if(iterationsLeft > 0) {
-	    	
-	    	
-	    	iterationsLeft = iterationsLeft - 1;
-	    	System.out.println("Iterations left are " + iterationsLeft);
-
-	    	findUtility(nextCell);
- 	    	
-	    }
-	    
- 
-	    
-	//    System.out.println("calcultaed utility is " + calculatedUtility);
-		
+		    return calculatedUtility;
 		
 		
 		
 	}
+	
+	
 	
 	
 	
