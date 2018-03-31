@@ -15,9 +15,15 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import org.jfree.ui.RefineryUtilities;
+
 public class PolicyEvaluation extends JFrame {
 	
  	 JMenu menu;
+  	 boolean changeGrid = false;
+
+ 	 
+ 	 
  	 JMenuBar menuBar;
  	 JPanel map;
  	 ArrayList<Cell> grid = new ArrayList<Cell>();
@@ -38,8 +44,8 @@ public class PolicyEvaluation extends JFrame {
 	 ArrayList<Integer> oldCellDirectionTaken = new ArrayList<Integer>();
 	 ArrayList<Integer> cellDirectionTaken = new ArrayList<Integer>();
 
-	
-	
+	 ArrayList<CellUtilityHistory> cellUtilityHistory = new ArrayList<CellUtilityHistory>();
+
 	
 	 int nextCell = 0;
 	 int iterationsLeft = 20;
@@ -76,7 +82,7 @@ public class PolicyEvaluation extends JFrame {
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);		
 				
 				menu = new JMenu("Settings");
-				JMenuItem setupGridSize = new JMenuItem("Set up grid size");
+				JMenuItem setupGridSize = new JMenuItem("New Grid");
 				setupGridSize.addActionListener(new ActionListener() {
 					
 					@Override
@@ -86,8 +92,32 @@ public class PolicyEvaluation extends JFrame {
 						editRowCol();
 					}
 				});
+				
+				JMenuItem toggleChangeGrid = new JMenuItem("Change grid type");
+				toggleChangeGrid.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+						
+						
+						if(changeGrid == true) {
+							
+							System.out.println("TRUE");
+						changeGrid = false;
+						}
+						else {
+							
+							changeGrid = true;
+							
+						}
+						
+					}
+				});
 			 
 				menu.add(setupGridSize);
+				menu.add(toggleChangeGrid);
+
 				menuBar = new JMenuBar();
 				menuBar.add(menu);
 				
@@ -100,6 +130,9 @@ public class PolicyEvaluation extends JFrame {
 				
 				for (int i = 0 ;i < gridSize ; i++) {
 					
+					cellUtilityHistory.add(new CellUtilityHistory());
+
+					
 					int k = i;
 					grid.add(new Cell(Cell.white));	
 					
@@ -108,11 +141,17 @@ public class PolicyEvaluation extends JFrame {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							// TODO Auto-generated method stub
+							
+							if(changeGrid == false) {
+								plotGraph(k);
+								}
+							
+							else {
 							 grid.get(k).toggleCellType();
-							 
 							  clearGridData();
 							 startPolicyEvalution();
-						}
+							}
+					}
 					});
 					
 				}
@@ -169,8 +208,12 @@ public class PolicyEvaluation extends JFrame {
 	 
 	 public void clearGridData() {
 		 
+			cellUtilityHistory = new ArrayList<>();
+ 
+		 
 		 counter = 0;
 		 for(int i = 0 ; i < grid.size(); i++) {
+			 cellUtilityHistory.add(new CellUtilityHistory());
 			 grid.get(i).setUtility(grid.get(i).getReward());
 			 grid.get(i).setText("");
 		 }
@@ -182,6 +225,25 @@ public class PolicyEvaluation extends JFrame {
 		 
 	 }
 	 
+	 
+	 
+		public void plotGraph(int i) {
+			
+			
+			final Graph demo = new Graph("Plot" , "Plot For Value Iteration");
+			demo.setup(cellUtilityHistory.get(i).getCellUtilityHistory());
+		    demo.pack();
+		    
+		    RefineryUtilities.centerFrameOnScreen(demo);
+		    demo.setVisible(true);
+			
+			
+			
+			
+			
+			
+			
+		}
 	 
 	 public void startPolicyEvalution() {
 
@@ -206,6 +268,9 @@ public class PolicyEvaluation extends JFrame {
 			
 			
 			newUtility = findUtility(i);
+			
+			cellUtilityHistory.get(i).addCellUtilityHistory(newUtility);
+
 			
 			cellDirectionTaken.add(directionTaken);
 			

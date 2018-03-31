@@ -52,8 +52,9 @@ public class ValueIteration extends JFrame {
 	
 	 int directionTaken = 0;
 	
-	 double episilon = 80;
+	// double episilon = 80;
 	
+	 double episilon = 50;
 	
 	 int row = 6;
 	 int col = 6;
@@ -88,7 +89,7 @@ public class ValueIteration extends JFrame {
 				
 				
 				
-				JMenuItem setupGridSize = new JMenuItem("Set up grid size");
+				JMenuItem setupGridSize = new JMenuItem("New Grid");
 				setupGridSize.addActionListener(new ActionListener() {
 					
 					@Override

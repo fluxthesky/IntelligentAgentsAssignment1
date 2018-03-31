@@ -30,7 +30,9 @@ public class Graph extends ApplicationFrame  {
 		for(int i = 0 ; i < cellUtility.size(); i++) {
 			
 			
-			series.add(i , cellUtility.get(i));
+ 			
+			
+			series.add(i+1 , cellUtility.get(i));
 			
 			
 			
