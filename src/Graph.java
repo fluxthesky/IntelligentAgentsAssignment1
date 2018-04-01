@@ -19,6 +19,63 @@ public class Graph extends ApplicationFrame  {
 	}
 
 	
+	
+	
+	public void setupGraph(ArrayList<Integer> cellDirection) {
+
+		
+		
+		
+		
+		final XYSeries series = new XYSeries("");
+		
+		
+		for(int i = 0 ; i < cellDirection.size(); i++) {
+			
+			
+ 			
+			
+			series.add(i+1 , cellDirection.get(i));
+			
+			
+			
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+	    final XYSeriesCollection data = new XYSeriesCollection(series);
+	    final JFreeChart chart = ChartFactory.createXYLineChart(
+	    		name,
+	        "Number of iterations", 
+	        "Utilies", 
+	        data,
+	        PlotOrientation.VERTICAL,
+	        true,
+	        true,
+	        false);
+	    
+	    
+	    
+	    
+	    final ChartPanel chartPanel = new ChartPanel(chart);
+	    chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+	    setContentPane(chartPanel);
+		
+		
+		
+		
+	
+	}
+	
+	
+	
+	
 	public void setup(ArrayList<Double> cellUtility) {
 		
 		

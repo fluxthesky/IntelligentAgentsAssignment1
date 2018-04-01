@@ -5,9 +5,17 @@ import javax.swing.JButton;
 public class Cell extends JButton{
 	
 	
+	//the reward given by the grid
 	private double reward = 0;
+	
+	//the current utility of the grid
 	public double utility = 0;
+	
+	
+	//the color of the grid
 	private Color color = Color.WHITE;
+	
+	
 	public final static int white = 0;
 	public final static int green = 1;
 	public final static int brown = 2;
@@ -31,6 +39,9 @@ public class Cell extends JButton{
 	
 	
 	public void setType(int type) {
+		
+		//set what type of indiviual grid this will be
+		
 		
 		switch(type) {
 		
@@ -75,6 +86,8 @@ public class Cell extends JButton{
 	
 	
 	public void toggleCellType() {
+		
+		//toggle between different types
 		
 		if(cell_type==white) {
 			
